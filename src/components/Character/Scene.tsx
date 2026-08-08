@@ -40,8 +40,8 @@ const Scene = () => {
       renderer.toneMappingExposure = 1;
       canvasDiv.current.appendChild(renderer.domElement);
 
-      const initialFov = aspect < 1 ? (2 * Math.atan(Math.tan(((14.5 * Math.PI) / 180) / 2 * 1.777) / aspect) * (180 / Math.PI)) : 14.5;
-      const camera = new THREE.PerspectiveCamera(initialFov, aspect, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(14.5, aspect, 0.1, 1000);
+      camera.position.z = 10;
       camera.position.set(0, 13.1, 24.7);
       camera.zoom = 1.1;
       camera.updateProjectionMatrix();
@@ -66,8 +66,12 @@ const Scene = () => {
           scene.add(character);
           headBone = character.getObjectByName("spine006") || null;
           screenLight = character.getObjectByName("screenlight") || null;
-          light.turnOnLights();
-          animations.startIntro();
+          progress.loaded().then(() => {
+            setTimeout(() => {
+              light.turnOnLights();
+              animations.startIntro();
+            }, 2500);
+          });
           window.addEventListener("resize", () =>
             handleResize(renderer, camera, canvasDiv, character)
           );
@@ -107,29 +111,6 @@ const Scene = () => {
       }
       const animate = () => {
         requestAnimationFrame(animate);
-        
-        // Hide 3D human character canvas when approaching Contact section or when Contact is visible
-        const contactElem = document.getElementById("contact");
-        if (contactElem) {
-          const rect = contactElem.getBoundingClientRect();
-          if (rect.top < window.innerHeight * 0.8) {
-            if (renderer.domElement.style.visibility !== "hidden") {
-              renderer.domElement.style.visibility = "hidden";
-              renderer.domElement.style.opacity = "0";
-            }
-          } else {
-            if (renderer.domElement.style.visibility !== "visible") {
-              renderer.domElement.style.visibility = "visible";
-              renderer.domElement.style.opacity = "1";
-            }
-          }
-        } else {
-          if (renderer.domElement.style.visibility !== "visible") {
-            renderer.domElement.style.visibility = "visible";
-            renderer.domElement.style.opacity = "1";
-          }
-        }
-
         if (headBone) {
           handleHeadRotation(
             headBone,
@@ -170,9 +151,9 @@ const Scene = () => {
   return (
     <>
       <div className="character-container">
-        <div className="character-model block fixed bottom-0 left-0 w-full h-screen max-w-[1920px] max-h-[1080px] z-1 pointer-events-none" ref={canvasDiv}>
-          <div className="character-rim absolute w-[400px] h-[400px] z-1 bg-[#f59bf8] blur-[50px] rounded-full top-1/2 left-1/2 -translate-x-1/2 translate-y-[100%] scale-[1.4] opacity-0"></div>
-          <div className="character-hover absolute w-[280px] h-[280px] top-1/2 left-1/2 z-3 -translate-x-1/2 -translate-y-1/2 rounded-full" ref={hoverDivRef}></div>
+        <div className="character-model" ref={canvasDiv}>
+          <div className="character-rim"></div>
+          <div className="character-hover" ref={hoverDivRef}></div>
         </div>
       </div>
     </>
@@ -180,4 +161,3 @@ const Scene = () => {
 };
 
 export default Scene;
-
