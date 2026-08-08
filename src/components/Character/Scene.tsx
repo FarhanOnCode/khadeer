@@ -151,7 +151,7 @@ const Scene = () => {
   return (
     <>
       <div className="character-container">
-        <div className="character-model hidden lg:block fixed bottom-0 left-0 w-full h-screen max-w-[1920px] max-h-[1080px] z-11 pointer-events-inherit" ref={canvasDiv}>
+        <div className="character-model block fixed bottom-0 left-0 w-full h-screen max-w-[1920px] max-h-[1080px] z-11 pointer-events-inherit" ref={canvasDiv}>
           <div className="character-rim absolute w-[400px] h-[400px] z-1 bg-[#f59bf8] blur-[50px] rounded-full top-1/2 left-1/2 -translate-x-1/2 translate-y-[100%] scale-[1.4] opacity-0"></div>
           <div className="character-hover absolute w-[280px] h-[280px] top-1/2 left-1/2 z-3 -translate-x-1/2 -translate-y-1/2 rounded-full" ref={hoverDivRef}></div>
         </div>

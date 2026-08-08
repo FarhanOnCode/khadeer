@@ -1,12 +1,25 @@
-/* Mobile Photo - hidden by default, shown only on mobile */
+/* Mobile Photo - hidden permanently in favor of 3D Avatar */
 .mobile-photo {
-  display: none;
+  display: none !important;
 }
 
-/* Remove mobile photo and ensure 3D character is always hidden on mobile */
+/* Mobile 3D Canvas & Layout styling */
 @media only screen and (max-width: 768px) {
   .character-model {
-    display: none !important;
+    display: block !important;
+    position: fixed !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .character-model canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
   }
 
   .landing-section,
@@ -17,11 +30,14 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 0 15px;
-    padding-bottom: 40px;
+    padding: 0 20px;
+    padding-top: 100px;
+    padding-bottom: 60px;
+    position: relative;
+    z-index: 10;
   }
 
-  /* Fix spacing between name and subtitle */
+  /* Spacing between name and subtitle */
   .landing-intro {
     position: relative !important;
     top: auto !important;
@@ -29,32 +45,23 @@
     right: auto !important;
     bottom: auto !important;
     transform: none !important;
-    padding-top: 40px;
-    /* Shift higher up */
-    margin-bottom: 20px;
     z-index: 10;
     text-align: center;
     width: 100% !important;
-    order: 1;
-    /* First: Name */
     height: auto !important;
+    margin-bottom: 20px;
+  }
+
+  .landing-intro h2 {
+    font-size: 16px !important;
+    letter-spacing: 3px;
+    color: var(--accentColor);
   }
 
   .landing-intro h1 {
-    word-spacing: 0.1em;
     font-size: 32px !important;
-    /* Ensure nice size */
     line-height: 1.2 !important;
-    margin: 0;
-  }
-
-  /* Ensure name parts display correctly */
-  .landing-intro h1 br {
-    display: block;
-    /* Keep break on mobile for 2 lines, or use display:none for 1 line */
-    content: " ";
-    /* Fallback */
-    margin-bottom: 5px;
+    margin: 8px 0;
   }
 
   /* Subtitles Container */
@@ -66,27 +73,21 @@
     bottom: auto !important;
     transform: none !important;
     text-align: center;
-    margin-top: 20px;
-    /* Space between name and subtitles */
+    margin-top: auto;
+    margin-bottom: 40px;
     z-index: 10;
     background: transparent;
-    padding-bottom: 50px;
-    /* Add bottom padding for scroll space */
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     height: auto !important;
-    /* Force auto height */
     width: 100% !important;
-    order: 3;
-    /* Third: Subtitles */
   }
 
   .landing-info h3 {
     text-align: center;
-    display: none;
-    /* Hide 'An' if not needed, or keep it static */
+    font-size: 16px !important;
   }
 
   /* Force static positioning to prevent overlaps */
@@ -99,15 +100,13 @@
     width: auto;
     margin: 0 !important;
     font-size: 20px !important;
-    line-height: 1.5 !important;
+    line-height: 1.4 !important;
     white-space: normal;
     text-align: center;
     height: auto !important;
     transform: none !important;
-    /* Remove any transforms */
   }
 
-  /* Specific styling for the distinct parts */
   .landing-h2-1 {
     font-size: 24px !important;
     color: var(--accentColor);
@@ -121,30 +120,6 @@
 
   .landing-info-h2::after {
     display: none;
-  }
-
-  /* Show mobile photo */
-  .mobile-photo {
-    display: block;
-    position: relative !important;
-    width: 100%;
-    max-width: 380px;
-    margin: 0 auto;
-    z-index: 1;
-    order: 2;
-    /* Second: Photo */
-    /* Add fade mask to bottom */
-    -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-    pointer-events: none;
-    transform: none !important;
-  }
-
-  .mobile-photo img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 0 40px rgba(194, 164, 255, 0.4));
   }
 }
 
@@ -256,7 +231,6 @@
 }
 
 .character-model {
-  height: 80%;
   height: 80vh;
   position: absolute;
   max-width: 1920px;
@@ -340,10 +314,6 @@
   font-weight: 500;
   font-family: "Geist", sans-serif;
 }
-
-/* .landing-intro h1 span {
-   font-weight: 200; 
-} */
 
 .landing-info {
   position: absolute;
