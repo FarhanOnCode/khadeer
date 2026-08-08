@@ -70,7 +70,7 @@ const Scene = () => {
             setTimeout(() => {
               light.turnOnLights();
               animations.startIntro();
-            }, 2500);
+            }, 100);
           });
           window.addEventListener("resize", () =>
             handleResize(renderer, camera, canvasDiv, character)
