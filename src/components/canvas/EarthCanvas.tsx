@@ -17,7 +17,7 @@ const EarthCanvas = () => {
     // 1. Scene, Camera (matching camera={{ fov: 45, near: 0.1, far: 200, position: [-4, 3, 6] }})
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 200);
-    camera.position.set(-4, 3, 6);
+    camera.position.set(0, 0, 7.5);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,

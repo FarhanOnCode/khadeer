@@ -128,6 +128,21 @@ export function setCharTimeline(
 }
 
 export function setAllTimeline() {
+  gsap.timeline({
+    scrollTrigger: {
+      trigger: "#contact",
+      start: "top 90%",
+      end: "bottom top",
+      toggleActions: "play reverse play reverse",
+      onEnter: () => {
+        gsap.to(".character-model", { opacity: 0, display: "none", duration: 0.3 });
+      },
+      onLeaveBack: () => {
+        gsap.to(".character-model", { opacity: 1, display: "block", duration: 0.3 });
+      },
+    },
+  });
+
   const careerTimeline = gsap.timeline({
     scrollTrigger: {
       trigger: ".career-section",
