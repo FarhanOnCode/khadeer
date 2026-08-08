@@ -66,12 +66,8 @@ const Scene = () => {
           scene.add(character);
           headBone = character.getObjectByName("spine006") || null;
           screenLight = character.getObjectByName("screenlight") || null;
-          progress.loaded().then(() => {
-            setTimeout(() => {
-              light.turnOnLights();
-              animations.startIntro();
-            }, 100);
-          });
+          light.turnOnLights();
+          animations.startIntro();
           window.addEventListener("resize", () =>
             handleResize(renderer, camera, canvasDiv, character)
           );
@@ -126,6 +122,11 @@ const Scene = () => {
               renderer.domElement.style.visibility = "visible";
               renderer.domElement.style.opacity = "1";
             }
+          }
+        } else {
+          if (renderer.domElement.style.visibility !== "visible") {
+            renderer.domElement.style.visibility = "visible";
+            renderer.domElement.style.opacity = "1";
           }
         }
 

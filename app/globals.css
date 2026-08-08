@@ -189,15 +189,4 @@ main {
   }
 }
 
-/* Permanently hide 3D Human Avatar on Contact section & Contact route */
-#contact ~ .character-model,
-#contact .character-model,
-.contact-section .character-model,
-body:has(#contact) .character-model,
-body:has(.contact-section) .character-model,
-.character-model.hide-avatar {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
-}
+

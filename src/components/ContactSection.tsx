@@ -10,28 +10,7 @@ import { MdEmail, MdLocationOn, MdCheckCircle, MdErrorOutline } from "react-icon
 export const ContactSection = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  // Hide 3D human character avatar when Contact section is active so it never overlaps the 3D Earth globe
-  useEffect(() => {
-    const hideAvatar = () => {
-      const charModels = document.querySelectorAll<HTMLElement>(".character-model, .character-container");
-      charModels.forEach((el) => {
-        el.style.display = "none";
-      });
-    };
 
-    hideAvatar();
-    const t1 = setTimeout(hideAvatar, 50);
-    const t2 = setTimeout(hideAvatar, 300);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      const charModels = document.querySelectorAll<HTMLElement>(".character-model, .character-container");
-      charModels.forEach((el) => {
-        el.style.display = "block";
-      });
-    };
-  }, []);
 
   const [form, setForm] = useState({
     name: "",
