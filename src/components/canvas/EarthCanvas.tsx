@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+// 3D Earth Canvas matching the exact R3F / 3D Planet specification
 const EarthCanvas = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -13,99 +14,146 @@ const EarthCanvas = () => {
     let width = container.clientWidth || 500;
     let height = container.clientHeight || 500;
 
-    // Scene, Camera, Renderer
+    // 1. Scene, Camera (matching camera={{ fov: 45, near: 0.1, far: 200, position: [-4, 3, 6] }})
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 15);
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 200);
+    camera.position.set(-4, 3, 6);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
       powerPreference: "high-performance",
+      preserveDrawingBuffer: true,
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.3;
     container.appendChild(renderer.domElement);
 
-    // Group for Earth + Rings
-    const earthGroup = new THREE.Group();
-    scene.add(earthGroup);
+    // 2. Earth Planet Group
+    const planetGroup = new THREE.Group();
+    scene.add(planetGroup);
 
-    // 1. Core Globe Sphere
-    const sphereGeometry = new THREE.SphereGeometry(3.6, 64, 64);
-    
-    // Procedural Earth Material with landmass & atmosphere Shader
-    const earthMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#1a162b"),
-      roughness: 0.6,
-      metalness: 0.3,
-      emissive: new THREE.Color("#2a1240"),
-      emissiveIntensity: 0.4,
+    // Procedural City Lights & Landmass Texture Generator
+    const createEarthTexture = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 512;
+      const ctx = canvas.getContext("2d")!;
+
+      // Dark Deep Space Oceans
+      ctx.fillStyle = "#0a0817";
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // Draw Stylized Landmasses & Golden City Lights
+      ctx.fillStyle = "#1e1738";
+      for (let i = 0; i < 180; i++) {
+        const cx = Math.random() * 1024;
+        const cy = Math.random() * 512;
+        const cr = Math.random() * 60 + 20;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+        ctx.fill();
+
+        // City Light Clusters
+        for (let j = 0; j < 12; j++) {
+          const lx = cx + (Math.random() - 0.5) * cr * 1.4;
+          const ly = cy + (Math.random() - 0.5) * cr * 1.4;
+          ctx.fillStyle = Math.random() > 0.4 ? "#ff9d3b" : "#ffd175";
+          ctx.beginPath();
+          ctx.arc(lx, ly, Math.random() * 2 + 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      return new THREE.CanvasTexture(canvas);
+    };
+
+    const earthTexture = createEarthTexture();
+
+    // 3. Core Planet Mesh
+    const planetGeometry = new THREE.SphereGeometry(2.3, 64, 64);
+    const planetMaterial = new THREE.MeshStandardMaterial({
+      map: earthTexture,
+      roughness: 0.7,
+      metalness: 0.2,
+      emissive: new THREE.Color("#2a1845"),
+      emissiveIntensity: 0.5,
     });
 
-    const globe = new THREE.Mesh(sphereGeometry, earthMaterial);
-    earthGroup.add(globe);
+    const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+    planetGroup.add(planetMesh);
 
-    // 2. Continents Overlay Mesh (stylized land wireframe / glow points)
-    const landGeometry = new THREE.SphereGeometry(3.62, 48, 48);
-    const landMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#c2a4ff"),
-      wireframe: true,
-      transparent: true,
-      opacity: 0.18,
-    });
-    const landMesh = new THREE.Mesh(landGeometry, landMaterial);
-    earthGroup.add(landMesh);
+    // 4. Thick Spiraling Cloud Ribbon Swirls (matching screenshot model)
+    const cloudSwirlGroup = new THREE.Group();
+    planetGroup.add(cloudSwirlGroup);
 
-    // 3. Glowing Atmospheric Spiral Rings (matching screenshot inspiration)
-    const ringsCount = 7;
-    const ringGroup = new THREE.Group();
-    earthGroup.add(ringGroup);
+    // Generate smooth ribbon swirl curves
+    const createCloudRibbon = (radiusOffset: number, rotY: number, rotZ: number, colorHex: string) => {
+      const points: THREE.Vector3[] = [];
+      const numPoints = 120;
 
-    for (let i = 0; i < ringsCount; i++) {
-      const radius = 4.2 + i * 0.35;
-      const ringGeo = new THREE.TorusGeometry(radius, 0.08, 16, 100);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: i % 2 === 0 ? new THREE.Color("#c2a4ff") : new THREE.Color("#fb8dff"),
+      for (let i = 0; i <= numPoints; i++) {
+        const theta = (i / numPoints) * Math.PI * 2.8;
+        const phi = Math.sin((i / numPoints) * Math.PI) * 1.2 - 0.6;
+        const r = 2.45 + radiusOffset + Math.sin(i * 0.1) * 0.08;
+
+        const x = r * Math.cos(theta) * Math.cos(phi);
+        const y = r * Math.sin(phi);
+        const z = r * Math.sin(theta) * Math.cos(phi);
+
+        points.push(new THREE.Vector3(x, y, z));
+      }
+
+      const curve = new THREE.CatmullRomCurve3(points);
+      const tubeGeo = new THREE.TubeGeometry(curve, 90, 0.22, 12, false);
+      const tubeMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(colorHex),
+        roughness: 0.3,
+        metalness: 0.1,
         transparent: true,
-        opacity: 0.7 - i * 0.08,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
       });
-      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      ringMesh.rotation.x = Math.PI / 3 + (i * 0.15);
-      ringMesh.rotation.y = (i * Math.PI) / 6;
-      ringGroup.add(ringMesh);
-    }
 
-    // 4. Outer Atmosphere Glow Sphere
-    const atmosphereGeo = new THREE.SphereGeometry(4.1, 32, 32);
-    const atmosphereMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#a855f7"),
+      const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+      tubeMesh.rotation.y = rotY;
+      tubeMesh.rotation.z = rotZ;
+      return tubeMesh;
+    };
+
+    // Add ribbon bands around the planet
+    cloudSwirlGroup.add(createCloudRibbon(0.05, 0, 0.2, "#8f9ee0"));
+    cloudSwirlGroup.add(createCloudRibbon(0.12, Math.PI / 3, -0.3, "#bfa8ff"));
+    cloudSwirlGroup.add(createCloudRibbon(0.08, (Math.PI * 2) / 3, 0.5, "#6b7bb8"));
+    cloudSwirlGroup.add(createCloudRibbon(0.18, Math.PI, -0.4, "#a885ee"));
+
+    // 5. Atmosphere Glow Outer Shell
+    const atmosGeo = new THREE.SphereGeometry(2.65, 32, 32);
+    const atmosMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("#9365e6"),
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.15,
       side: THREE.BackSide,
     });
-    const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
-    earthGroup.add(atmosphereMesh);
+    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+    planetGroup.add(atmosMesh);
 
-    // 5. Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    // 6. Lighting Setup (Cinematic key light matching screenshot)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xc2a4ff, 3.0);
-    dirLight1.position.set(10, 10, 10);
-    scene.add(dirLight1);
+    const mainLight = new THREE.DirectionalLight(0xd1c4ff, 3.5);
+    mainLight.position.set(-6, 8, 10);
+    scene.add(mainLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0xfb8dff, 2.0);
-    dirLight2.position.set(-10, -10, -10);
-    scene.add(dirLight2);
+    const fillLight = new THREE.DirectionalLight(0x7c52d9, 2.0);
+    fillLight.position.set(8, -6, -8);
+    scene.add(fillLight);
 
-    const pointLight = new THREE.PointLight(0xa855f7, 4, 20);
-    pointLight.position.set(0, 0, 8);
-    scene.add(pointLight);
-
-    // Mouse Drag Rotation Controls
+    // 7. Interactive Orbit / Drag Controls (OrbitControls behavior)
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
 
@@ -119,8 +167,8 @@ const EarthCanvas = () => {
       const deltaX = e.clientX - previousMousePosition.x;
       const deltaY = e.clientY - previousMousePosition.y;
 
-      earthGroup.rotation.y += deltaX * 0.005;
-      earthGroup.rotation.x += deltaY * 0.005;
+      planetGroup.rotation.y += deltaX * 0.005;
+      planetGroup.rotation.x += deltaY * 0.005;
 
       previousMousePosition = { x: e.clientX, y: e.clientY };
     };
@@ -134,7 +182,34 @@ const EarthCanvas = () => {
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
 
-    // Handle Resize
+    // Touch Support for Mobile
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - previousMousePosition.x;
+      const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+      planetGroup.rotation.y += deltaX * 0.005;
+      planetGroup.rotation.x += deltaY * 0.005;
+
+      previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    };
+
+    const onTouchEnd = () => {
+      isDragging = false;
+    };
+
+    domElement.addEventListener("touchstart", onTouchStart);
+    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("touchend", onTouchEnd);
+
+    // Handle Window Resize
     const handleResize = () => {
       if (!container) return;
       width = container.clientWidth;
@@ -146,16 +221,15 @@ const EarthCanvas = () => {
 
     window.addEventListener("resize", handleResize);
 
-    // Animation Loop
+    // Animation Loop (autoRotate matching R3F OrbitControls autoRotate)
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      // Auto-rotation when not dragging
       if (!isDragging) {
-        earthGroup.rotation.y += 0.004;
-        ringGroup.rotation.z += 0.002;
-        ringGroup.rotation.x += 0.001;
+        planetGroup.rotation.y += 0.006; // Auto-rotate y
+        cloudSwirlGroup.rotation.z += 0.002;
+        cloudSwirlGroup.rotation.x += 0.001;
       }
 
       renderer.render(scene, camera);
@@ -168,6 +242,9 @@ const EarthCanvas = () => {
       domElement.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      domElement.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("resize", handleResize);
       scene.clear();
       renderer.dispose();
