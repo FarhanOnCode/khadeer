@@ -40,8 +40,8 @@ const Scene = () => {
       renderer.toneMappingExposure = 1;
       canvasDiv.current.appendChild(renderer.domElement);
 
-      const camera = new THREE.PerspectiveCamera(14.5, aspect, 0.1, 1000);
-      camera.position.z = 10;
+      const initialFov = aspect < 1 ? (2 * Math.atan(Math.tan(((14.5 * Math.PI) / 180) / 2 * 1.777) / aspect) * (180 / Math.PI)) : 14.5;
+      const camera = new THREE.PerspectiveCamera(initialFov, aspect, 0.1, 1000);
       camera.position.set(0, 13.1, 24.7);
       camera.zoom = 1.1;
       camera.updateProjectionMatrix();

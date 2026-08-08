@@ -14,6 +14,11 @@ export default function handleResize(
   const height = canvas3d.height;
   renderer.setSize(width, height);
   camera.aspect = width / height;
+  if (camera.aspect < 1) {
+    camera.fov = (2 * Math.atan(Math.tan(((14.5 * Math.PI) / 180) / 2 * 1.777) / camera.aspect) * (180 / Math.PI));
+  } else {
+    camera.fov = 14.5;
+  }
   camera.updateProjectionMatrix();
   const workTrigger = ScrollTrigger.getById("work");
   ScrollTrigger.getAll().forEach((trigger) => {
