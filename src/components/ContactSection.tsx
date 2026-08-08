@@ -92,16 +92,16 @@ export const ContactSection = () => {
       {/* Floating Space Stars Background */}
       <StarsCanvas />
 
-      {/* Main Grid Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-12 items-center">
-        {/* Left Column: Dark Purple Form Card (Matching Reference Image 2) */}
-        <div className="xl:col-span-6 w-full rounded-2xl bg-[#100d25] border border-white/5 p-8 sm:p-10 shadow-2xl">
+      {/* Main Flex Layout Container (Matching shubam.netlify.app exact spec) */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col-reverse xl:flex-row gap-10 items-center justify-center">
+        {/* Left Column: Dark Purple Form Card (flex-[0.75]) */}
+        <div className="w-full xl:flex-[0.75] max-w-[540px] rounded-2xl bg-[#100d25] p-8 sm:p-10 shadow-2xl border border-white/5">
           {/* Header Subtitle & Title */}
           <div className="space-y-1 mb-8">
             <p className="text-xs uppercase tracking-widest text-[#aaa6c3] font-semibold">
               Get in Touch
             </p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-wider">
+            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-wider font-geist">
               Contact<span className="text-[#915eff]">.</span>
             </h2>
           </div>
@@ -225,8 +225,8 @@ export const ContactSection = () => {
           </div>
         </div>
 
-        {/* Right Column: 3D Earth Planet Model */}
-        <div className="xl:col-span-6 w-full flex items-center justify-center h-[400px] sm:h-[500px] xl:h-[600px] relative">
+        {/* Right Column: 3D Earth Globe Canvas (xl:flex-1) */}
+        <div className="w-full xl:flex-1 h-[350px] sm:h-[500px] xl:h-[600px] flex items-center justify-center relative">
           <EarthCanvas />
         </div>
       </div>
